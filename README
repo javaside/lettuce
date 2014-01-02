@@ -2,7 +2,7 @@
 主要是异步上增加了Promise支持
 
 异步连接的使用
-```
+
   RedisAsyncConnection<String, String> async = client.connectAsync()
   async.get("key").then(new Callback<String>() {
       public void call(String value) {
@@ -13,9 +13,9 @@
       
       }
   });
-```
+
 也可以使用Promises来支持多个异步操作
-```
+
   Promise<String> promise1 = async.get("key1");
   Promise<String> promise2 = async.get("key2");
   Promises.promises(promise1,promise2).then(new Callback<List<String>>() {
@@ -24,4 +24,4 @@
          String v2 = values.get(1);
       }
   });
-```
+
