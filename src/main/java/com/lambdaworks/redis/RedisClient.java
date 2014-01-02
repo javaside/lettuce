@@ -55,8 +55,6 @@ public class RedisClient {
      * @param port    Server port.
      */
     public RedisClient(String host, int port) {
-        ExecutorService connectors = Executors.newFixedThreadPool(1);
-        ExecutorService workers    = Executors.newCachedThreadPool();
 
         InetSocketAddress addr = new InetSocketAddress(host, port);
 
