@@ -931,12 +931,12 @@ public class RedisAsyncConnection<K, V> extends ChannelInboundHandlerAdapter {
     /**
      * Wait until commands are complete or the connection timeout is reached.
      *
-     * @param Promises   Promises to wait for.
+     * @param futures   futures to wait for.
      *
      * @return True if all Promises complete in time.
      */
-    public boolean awaitAll(Promise<?>... Promises) {
-        return awaitAll(timeout, unit, Promises);
+    public boolean awaitAll(Future<?>... futures) {
+        return awaitAll(timeout, unit, futures);
     }
 
     /**
@@ -944,18 +944,18 @@ public class RedisAsyncConnection<K, V> extends ChannelInboundHandlerAdapter {
      *
      * @param timeout   Maximum time to wait for Promises to complete.
      * @param unit      Unit of time for the timeout.
-     * @param Promises   Promises to wait for.
+     * @param futures   futures to wait for.
      *
      * @return True if all Promises complete in time.
      */
-    public boolean awaitAll(long timeout, TimeUnit unit, Promise<?>... Promises) {
+    public boolean awaitAll(long timeout, TimeUnit unit, Future<?>... futures) {
         boolean complete;
 
         try {
             long nanos = unit.toNanos(timeout);
             long time  = System.nanoTime();
 
-            for (Promise<?> f : Promises) {
+            for (Future<?> f : futures) {
                 if (nanos < 0) return false;
                 f.get(nanos, TimeUnit.NANOSECONDS);
                 long now = System.nanoTime();
