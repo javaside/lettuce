@@ -68,8 +68,8 @@ public abstract class AbstractCommandTest {
         public WithPasswordRequired() throws Exception {
             try {
                 redis.configSet("requirepass", passwd);
-                redis.auth(passwd);
 
+                redis.auth(passwd);
                 RedisClient client = new RedisClient(host, port);
                 try {
                     run(client);

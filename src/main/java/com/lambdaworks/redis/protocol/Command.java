@@ -152,10 +152,12 @@ public class Command<K, V, T> implements Promise<T> {
      */
     public void complete() {
         latch.countDown();
-        if(output.hasError()) {
-            triggerError(output.getError());
-        } else {
-            triggerDone(output.get());
+        if(output != null) {
+            if(output.hasError()) {
+                triggerError(output.getError());
+            } else {
+                triggerDone(output.get());
+            }
         }
 
 
