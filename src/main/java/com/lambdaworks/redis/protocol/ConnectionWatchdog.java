@@ -79,6 +79,13 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter implements 
      */
     @Override
     public void run(Timeout timeout) throws Exception {
-        bootstrap.connect();
+        bootstrap.connect().addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                if (!future.isSuccess()) {
+                    future.channel().pipeline().fireChannelInactive();
+                }
+            }
+        });
     }
 }
