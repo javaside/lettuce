@@ -30,13 +30,13 @@ public abstract class AbstractPromise<T> implements Promise<T> {
         if(isDone()) {
             triggerDone(value);
         }
-        return this;  //To change body of implemented methods use File | Settings | File Templates.
+        return this;
     }
 
     @Override
     public Promise<T> fail(FailCallback failCallback) {
         failCallbacks.add(failCallback);
-        if(isDone() && hasError()) {
+        if(hasError()) {
             triggerError(error);
         }
 
@@ -47,7 +47,7 @@ public abstract class AbstractPromise<T> implements Promise<T> {
     public Promise<T> then(Callback<T> callback, FailCallback failCallback) {
         then(callback);
         fail(failCallback);
-        return this;  //To change body of implemented methods use File | Settings | File Templates.
+        return this;
     }
 
     protected void triggerDone(T resolved) {
