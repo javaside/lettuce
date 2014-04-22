@@ -15,7 +15,7 @@ public interface Promise<T> {
     public Promise<T> then(Callback<T> callback);
     public Promise<T> then(Callback<T> callback, FailCallback failCallback);
     public Promise<T> fail(FailCallback failCallback);
-    public Promise<T> then(DonePipe<T> pipeCallback);
+    public <R> Promise<R> then(DonePipe<T, R> pipeCallback);
 
 
 }
