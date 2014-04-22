@@ -83,7 +83,7 @@ public abstract class AbstractPromise<T> implements Promise<T> {
     }
 
     @Override
-    public Promise<T> then(DonePipe<T> pipeCallback) {
-        return new PipedPromise<T>(this, pipeCallback);
+    public <R> Promise<R> then(DonePipe<T, R> pipeCallback) {
+        return new PipedPromise<>(this, pipeCallback);
     }
 }
