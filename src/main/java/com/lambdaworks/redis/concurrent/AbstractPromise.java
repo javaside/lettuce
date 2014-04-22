@@ -2,11 +2,14 @@ package com.lambdaworks.redis.concurrent;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by roger on 14-4-16.
  */
 public abstract class AbstractPromise<T> implements Promise<T> {
+    private static ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     protected final List<Callback<T>> doneCallbacks = new CopyOnWriteArrayList<Callback<T>>();
     protected final List<FailCallback> failCallbacks = new CopyOnWriteArrayList<FailCallback>();
     protected T value;
@@ -50,21 +53,33 @@ public abstract class AbstractPromise<T> implements Promise<T> {
         return this;
     }
 
-    protected void triggerDone(T resolved) {
-        for (Callback<T> callback : doneCallbacks) {
-            try {
-                callback.call(resolved);
-            } catch (Exception e) {
-                e.printStackTrace();
+    protected void triggerDone(final T resolved) {
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                for (Callback<T> callback : doneCallbacks) {
+                    try {
+                        callback.call(resolved);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
-        }
+        });
+
     }
 
 
-    protected void triggerError(String error) {
-        for(FailCallback failCallback : failCallbacks) {
-            failCallback.fail(error);
-        }
+    protected void triggerError(final String error) {
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                for(FailCallback failCallback : failCallbacks) {
+                    failCallback.fail(error);
+                }
+            }
+        });
+
     }
 
     @Override
