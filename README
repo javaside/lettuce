@@ -25,3 +25,18 @@
       }
   });
 
+如果需要多步操作，下一次的操作依赖上一次的返回值,可以试用PipePromise
+
+redis.get("USER.ID").then(new DonePipe<String>() {
+    @Override
+    public Promise<String> pipeDone(String value) {
+        System.out.println("USER.ID -> " + value);
+        return redis.get("USER:" + value);
+    }
+}).then(new Callback<String>() {
+    @Override
+    public void call(String value) {
+        System.out.println("USER -> " + value);
+
+    }
+});

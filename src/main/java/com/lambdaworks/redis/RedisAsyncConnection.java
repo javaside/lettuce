@@ -4,7 +4,8 @@ package com.lambdaworks.redis;
 
 import com.lambdaworks.codec.Base16;
 import com.lambdaworks.redis.codec.RedisCodec;
-import com.lambdaworks.redis.concurrent.Promise;
+import com.lambdaworks.redis.concurrent.ListenableFuture;
+import com.lambdaworks.redis.concurrent.ListenableFuture;
 import com.lambdaworks.redis.output.*;
 import com.lambdaworks.redis.protocol.*;
 import io.netty.channel.Channel;
@@ -69,7 +70,7 @@ public class RedisAsyncConnection<K, V> extends ChannelInboundHandlerAdapter {
         this.unit = unit;
     }
 
-    public Promise<Long> append(K key, V value) {
+    public ListenableFuture<Long> append(K key, V value) {
         return dispatch(APPEND, new IntegerOutput<K, V>(codec), key, value);
     }
 
@@ -81,124 +82,124 @@ public class RedisAsyncConnection<K, V> extends ChannelInboundHandlerAdapter {
         return status;
     }
 
-    public Promise<String> bgrewriteaof() {
+    public ListenableFuture<String> bgrewriteaof() {
         return dispatch(BGREWRITEAOF, new StatusOutput<K, V>(codec));
     }
 
-    public Promise<String> bgsave() {
+    public ListenableFuture<String> bgsave() {
         return dispatch(BGSAVE, new StatusOutput<K, V>(codec));
     }
 
-    public Promise<Long> bitcount(K key) {
+    public ListenableFuture<Long> bitcount(K key) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key);
         return dispatch(BITCOUNT, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> bitcount(K key, long start, long end) {
+    public ListenableFuture<Long> bitcount(K key, long start, long end) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec);
         args.addKey(key).add(start).add(end);
         return dispatch(BITCOUNT, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> bitopAnd(K destination, K... keys) {
+    public ListenableFuture<Long> bitopAnd(K destination, K... keys) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec);
         args.add(AND).addKey(destination).addKeys(keys);
         return dispatch(BITOP, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> bitopNot(K destination, K source) {
+    public ListenableFuture<Long> bitopNot(K destination, K source) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec);
         args.add(NOT).addKey(destination).addKey(source);
         return dispatch(BITOP, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> bitopOr(K destination, K... keys) {
+    public ListenableFuture<Long> bitopOr(K destination, K... keys) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec);
         args.add(OR).addKey(destination).addKeys(keys);
         return dispatch(BITOP, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> bitopXor(K destination, K... keys) {
+    public ListenableFuture<Long> bitopXor(K destination, K... keys) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec);
         args.add(XOR).addKey(destination).addKeys(keys);
         return dispatch(BITOP, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<KeyValue<K, V>> blpop(long timeout, K... keys) {
+    public ListenableFuture<KeyValue<K, V>> blpop(long timeout, K... keys) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKeys(keys).add(timeout);
         return dispatch(BLPOP, new KeyValueOutput<K, V>(codec), args);
     }
 
-    public Promise<KeyValue<K, V>> brpop(long timeout, K... keys) {
+    public ListenableFuture<KeyValue<K, V>> brpop(long timeout, K... keys) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKeys(keys).add(timeout);
         return dispatch(BRPOP, new KeyValueOutput<K, V>(codec), args);
     }
 
-    public Promise<V> brpoplpush(long timeout, K source, K destination) {
+    public ListenableFuture<V> brpoplpush(long timeout, K source, K destination) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec);
         args.addKey(source).addKey(destination).add(timeout);
         return dispatch(BRPOPLPUSH, new ValueOutput<K, V>(codec), args);
     }
 
-    public Promise<K> clientGetname() {
+    public ListenableFuture<K> clientGetname() {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).add(GETNAME);
         return dispatch(CLIENT, new KeyOutput<K, V>(codec), args);
     }
 
-    public Promise<String> clientSetname(K name) {
+    public ListenableFuture<String> clientSetname(K name) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).add(SETNAME).addKey(name);
         return dispatch(CLIENT, new StatusOutput<K, V>(codec), args);
     }
 
-    public Promise<String> clientKill(String addr) {
+    public ListenableFuture<String> clientKill(String addr) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).add(KILL).add(addr);
         return dispatch(CLIENT, new StatusOutput<K, V>(codec), args);
     }
 
-    public Promise<String> clientList() {
+    public ListenableFuture<String> clientList() {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).add(LIST);
         return dispatch(CLIENT, new StatusOutput<K, V>(codec), args);
     }
 
-    public Promise<List<String>> configGet(String parameter) {
+    public ListenableFuture<List<String>> configGet(String parameter) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).add(GET).add(parameter);
         return dispatch(CONFIG, new StringListOutput<K, V>(codec), args);
     }
 
-    public Promise<String> configResetstat() {
+    public ListenableFuture<String> configResetstat() {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).add(RESETSTAT);
         return dispatch(CONFIG, new StatusOutput<K, V>(codec), args);
     }
 
-    public Promise<String> configSet(String parameter, String value) {
+    public ListenableFuture<String> configSet(String parameter, String value) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).add(SET).add(parameter).add(value);
         return dispatch(CONFIG, new StatusOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> dbsize() {
+    public ListenableFuture<Long> dbsize() {
         return dispatch(DBSIZE, new IntegerOutput<K, V>(codec));
     }
 
-    public Promise<String> debugObject(K key) {
+    public ListenableFuture<String> debugObject(K key) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).add(OBJECT).addKey(key);
         return dispatch(DEBUG, new StatusOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> decr(K key) {
+    public ListenableFuture<Long> decr(K key) {
         return dispatch(DECR, new IntegerOutput<K, V>(codec), key);
     }
 
-    public Promise<Long> decrby(K key, long amount) {
+    public ListenableFuture<Long> decrby(K key, long amount) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(amount);
         return dispatch(DECRBY, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> del(K... keys) {
+    public ListenableFuture<Long> del(K... keys) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKeys(keys);
         return dispatch(DEL, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<String> discard() {
+    public ListenableFuture<String> discard() {
         if (multi != null) {
             multi.cancel();
             multi = null;
@@ -206,378 +207,378 @@ public class RedisAsyncConnection<K, V> extends ChannelInboundHandlerAdapter {
         return dispatch(DISCARD, new StatusOutput<K, V>(codec));
     }
 
-    public Promise<byte[]> dump(K key) {
+    public ListenableFuture<byte[]> dump(K key) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key);
         return dispatch(DUMP, new ByteArrayOutput<K, V>(codec), args);
     }
 
-    public Promise<V> echo(V msg) {
+    public ListenableFuture<V> echo(V msg) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addValue(msg);
         return dispatch(ECHO, new ValueOutput<K, V>(codec), args);
     }
 
-    public <T> Promise<T> eval(V script, ScriptOutputType type, K[] keys, V... values) {
+    public <T> ListenableFuture<T> eval(V script, ScriptOutputType type, K[] keys, V... values) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec);
         args.addValue(script).add(keys.length).addKeys(keys).addValues(values);
         CommandOutput<K, V, T> output = newScriptOutput(codec, type);
         return dispatch(EVAL, output, args);
     }
 
-    public <T> Promise<T> evalsha(String digest, ScriptOutputType type, K[] keys, V... values) {
+    public <T> ListenableFuture<T> evalsha(String digest, ScriptOutputType type, K[] keys, V... values) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec);
         args.add(digest).add(keys.length).addKeys(keys).addValues(values);
         CommandOutput<K, V, T> output = newScriptOutput(codec, type);
         return dispatch(EVALSHA, output, args);
     }
 
-    public Promise<Boolean> exists(K key) {
+    public ListenableFuture<Boolean> exists(K key) {
         return dispatch(EXISTS, new BooleanOutput<K, V>(codec), key);
     }
 
-    public Promise<Boolean> expire(K key, long seconds) {
+    public ListenableFuture<Boolean> expire(K key, long seconds) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(seconds);
         return dispatch(EXPIRE, new BooleanOutput<K, V>(codec), args);
     }
 
-    public Promise<Boolean> expireat(K key, Date timestamp) {
+    public ListenableFuture<Boolean> expireat(K key, Date timestamp) {
         return expireat(key, timestamp.getTime() / 1000);
     }
 
-    public Promise<Boolean> expireat(K key, long timestamp) {
+    public ListenableFuture<Boolean> expireat(K key, long timestamp) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(timestamp);
         return dispatch(EXPIREAT, new BooleanOutput<K, V>(codec), args);
     }
 
-    public Promise<List<Object>> exec() {
+    public ListenableFuture<List<Object>> exec() {
         MultiOutput<K, V> multi = this.multi;
         this.multi = null;
         if (multi == null) multi = new MultiOutput<K, V>(codec);
         return dispatch(EXEC, multi);
     }
 
-    public Promise<String> flushall() throws Exception {
+    public ListenableFuture<String> flushall() throws Exception {
         return dispatch(FLUSHALL, new StatusOutput<K, V>(codec));
     }
 
-    public Promise<String> flushdb() throws Exception {
+    public ListenableFuture<String> flushdb() throws Exception {
         return dispatch(FLUSHDB, new StatusOutput<K, V>(codec));
     }
 
-    public Promise<V> get(K key) {
+    public ListenableFuture<V> get(K key) {
         return dispatch(GET, new ValueOutput<K, V>(codec), key);
     }
 
-    public Promise<Long> getbit(K key, long offset) {
+    public ListenableFuture<Long> getbit(K key, long offset) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(offset);
         return dispatch(GETBIT, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<V> getrange(K key, long start, long end) {
+    public ListenableFuture<V> getrange(K key, long start, long end) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(start).add(end);
         return dispatch(GETRANGE, new ValueOutput<K, V>(codec), args);
     }
 
-    public Promise<V> getset(K key, V value) {
+    public ListenableFuture<V> getset(K key, V value) {
         return dispatch(GETSET, new ValueOutput<K, V>(codec), key, value);
     }
 
-    public Promise<Long> hdel(K key, K... fields) {
+    public ListenableFuture<Long> hdel(K key, K... fields) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).addKeys(fields);
         return dispatch(HDEL, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<Boolean> hexists(K key, K field) {
+    public ListenableFuture<Boolean> hexists(K key, K field) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).addKey(field);
         return dispatch(HEXISTS, new BooleanOutput<K, V>(codec), args);
     }
 
-    public Promise<V> hget(K key, K field) {
+    public ListenableFuture<V> hget(K key, K field) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).addKey(field);
         return dispatch(HGET, new ValueOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> hincrby(K key, K field, long amount) {
+    public ListenableFuture<Long> hincrby(K key, K field, long amount) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).addKey(field).add(amount);
         return dispatch(HINCRBY, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<Double> hincrbyfloat(K key, K field, double amount) {
+    public ListenableFuture<Double> hincrbyfloat(K key, K field, double amount) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).addKey(field).add(amount);
         return dispatch(HINCRBYFLOAT, new DoubleOutput<K, V>(codec), args);
     }
 
-    public Promise<Map<K, V>> hgetall(K key) {
+    public ListenableFuture<Map<K, V>> hgetall(K key) {
         return dispatch(HGETALL, new MapOutput<K, V>(codec), key);
     }
 
-    public Promise<List<K>> hkeys(K key) {
+    public ListenableFuture<List<K>> hkeys(K key) {
         return dispatch(HKEYS, new KeyListOutput<K, V>(codec), key);
     }
 
-    public Promise<Long> hlen(K key) {
+    public ListenableFuture<Long> hlen(K key) {
         return dispatch(HLEN, new IntegerOutput<K, V>(codec), key);
     }
 
-    public Promise<List<V>> hmget(K key, K... fields) {
+    public ListenableFuture<List<V>> hmget(K key, K... fields) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).addKeys(fields);
         return dispatch(HMGET, new ValueListOutput<K, V>(codec), args);
     }
 
-    public Promise<String> hmset(K key, Map<K, V> map) {
+    public ListenableFuture<String> hmset(K key, Map<K, V> map) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(map);
         return dispatch(HMSET, new StatusOutput<K, V>(codec), args);
     }
 
-    public Promise<Boolean> hset(K key, K field, V value) {
+    public ListenableFuture<Boolean> hset(K key, K field, V value) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).addKey(field).addValue(value);
         return dispatch(HSET, new BooleanOutput<K, V>(codec), args);
     }
 
-    public Promise<Boolean> hsetnx(K key, K field, V value) {
+    public ListenableFuture<Boolean> hsetnx(K key, K field, V value) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).addKey(field).addValue(value);
         return dispatch(HSETNX, new BooleanOutput<K, V>(codec), args);
     }
 
-    public Promise<List<V>> hvals(K key) {
+    public ListenableFuture<List<V>> hvals(K key) {
         return dispatch(HVALS, new ValueListOutput<K, V>(codec), key);
     }
 
-    public Promise<Long> incr(K key) {
+    public ListenableFuture<Long> incr(K key) {
         return dispatch(INCR, new IntegerOutput<K, V>(codec), key);
     }
 
-    public Promise<Long> incrby(K key, long amount) {
+    public ListenableFuture<Long> incrby(K key, long amount) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(amount);
         return dispatch(INCRBY, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<Double> incrbyfloat(K key, double amount) {
+    public ListenableFuture<Double> incrbyfloat(K key, double amount) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(amount);
         return dispatch(INCRBYFLOAT, new DoubleOutput<K, V>(codec), args);
     }
 
-    public Promise<String> info() {
+    public ListenableFuture<String> info() {
         return dispatch(INFO, new StatusOutput<K, V>(codec));
     }
 
-    public Promise<String> info(String section) {
+    public ListenableFuture<String> info(String section) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).add(section);
         return dispatch(INFO, new StatusOutput<K, V>(codec), args);
     }
 
-    public Promise<List<K>> keys(K pattern) {
+    public ListenableFuture<List<K>> keys(K pattern) {
        return dispatch(KEYS, new KeyListOutput<K, V>(codec), pattern);
     }
 
-    public Promise<Date> lastsave() {
+    public ListenableFuture<Date> lastsave() {
         return dispatch(LASTSAVE, new DateOutput<K, V>(codec));
     }
 
-    public Promise<V> lindex(K key, long index) {
+    public ListenableFuture<V> lindex(K key, long index) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(index);
         return dispatch(LINDEX, new ValueOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> linsert(K key, boolean before, V pivot, V value) {
+    public ListenableFuture<Long> linsert(K key, boolean before, V pivot, V value) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec);
         args.addKey(key).add(before ? BEFORE : AFTER).addValue(pivot).addValue(value);
         return dispatch(LINSERT, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> llen(K key) {
+    public ListenableFuture<Long> llen(K key) {
         return dispatch(LLEN, new IntegerOutput<K, V>(codec), key);
     }
 
-    public Promise<V> lpop(K key) {
+    public ListenableFuture<V> lpop(K key) {
         return dispatch(LPOP, new ValueOutput<K, V>(codec), key);
     }
 
-    public Promise<Long> lpush(K key, V... values) {
+    public ListenableFuture<Long> lpush(K key, V... values) {
         return dispatch(LPUSH, new IntegerOutput<K, V>(codec), key, values);
     }
 
-    public Promise<Long> lpushx(K key, V value) {
+    public ListenableFuture<Long> lpushx(K key, V value) {
         return dispatch(LPUSHX, new IntegerOutput<K, V>(codec), key, value);
     }
 
-    public Promise<List<V>> lrange(K key, long start, long stop) {
+    public ListenableFuture<List<V>> lrange(K key, long start, long stop) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(start).add(stop);
         return dispatch(LRANGE, new ValueListOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> lrem(K key, long count, V value) {
+    public ListenableFuture<Long> lrem(K key, long count, V value) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(count).addValue(value);
         return dispatch(LREM, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<String> lset(K key, long index, V value) {
+    public ListenableFuture<String> lset(K key, long index, V value) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(index).addValue(value);
         return dispatch(LSET, new StatusOutput<K, V>(codec), args);
     }
 
-    public Promise<String> ltrim(K key, long start, long stop) {
+    public ListenableFuture<String> ltrim(K key, long start, long stop) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(start).add(stop);
         return dispatch(LTRIM, new StatusOutput<K, V>(codec), args);
     }
 
-    public Promise<String> migrate(String host, int port, K key, int db, long timeout) {
+    public ListenableFuture<String> migrate(String host, int port, K key, int db, long timeout) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec);
         args.add(host).add(port).addKey(key).add(db).add(timeout);
         return dispatch(MIGRATE, new StatusOutput<K, V>(codec), args);
     }
 
-    public Promise<List<V>> mget(K... keys) {
+    public ListenableFuture<List<V>> mget(K... keys) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKeys(keys);
         return dispatch(MGET, new ValueListOutput<K, V>(codec), args);
     }
 
-    public Promise<Boolean> move(K key, int db) {
+    public ListenableFuture<Boolean> move(K key, int db) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(db);
         return dispatch(MOVE, new BooleanOutput<K, V>(codec), args);
     }
 
-    public Promise<String> multi() {
+    public ListenableFuture<String> multi() {
         Command<K, V, String> cmd = dispatch(MULTI, new StatusOutput<K, V>(codec));
         multi = (multi == null ? new MultiOutput<K, V>(codec) : multi);
         return cmd;
     }
 
-    public Promise<String> mset(Map<K, V> map) {
+    public ListenableFuture<String> mset(Map<K, V> map) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).add(map);
         return dispatch(MSET, new StatusOutput<K, V>(codec), args);
     }
 
-    public Promise<Boolean> msetnx(Map<K, V> map) {
+    public ListenableFuture<Boolean> msetnx(Map<K, V> map) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).add(map);
         return dispatch(MSETNX, new BooleanOutput<K, V>(codec), args);
     }
 
-    public Promise<String> objectEncoding(K key) {
+    public ListenableFuture<String> objectEncoding(K key) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).add(ENCODING).addKey(key);
         return dispatch(OBJECT, new StatusOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> objectIdletime(K key) {
+    public ListenableFuture<Long> objectIdletime(K key) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).add(IDLETIME).addKey(key);
         return dispatch(OBJECT, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> objectRefcount(K key) {
+    public ListenableFuture<Long> objectRefcount(K key) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).add(REFCOUNT).addKey(key);
         return dispatch(OBJECT, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<Boolean> persist(K key) {
+    public ListenableFuture<Boolean> persist(K key) {
         return dispatch(PERSIST, new BooleanOutput<K, V>(codec), key);
     }
 
-    public Promise<Boolean> pexpire(K key, long milliseconds) {
+    public ListenableFuture<Boolean> pexpire(K key, long milliseconds) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(milliseconds);
         return dispatch(PEXPIRE, new BooleanOutput<K, V>(codec), args);
     }
 
-    public Promise<Boolean> pexpireat(K key, Date timestamp) {
+    public ListenableFuture<Boolean> pexpireat(K key, Date timestamp) {
         return pexpireat(key, timestamp.getTime());
     }
 
-    public Promise<Boolean> pexpireat(K key, long timestamp) {
+    public ListenableFuture<Boolean> pexpireat(K key, long timestamp) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(timestamp);
         return dispatch(PEXPIREAT, new BooleanOutput<K, V>(codec), args);
     }
 
-    public Promise<String> ping() {
+    public ListenableFuture<String> ping() {
         return dispatch(PING, new StatusOutput<K, V>(codec));
     }
 
-    public Promise<Long> pttl(K key) {
+    public ListenableFuture<Long> pttl(K key) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key);
         return dispatch(PTTL, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> publish(K channel, V message) {
+    public ListenableFuture<Long> publish(K channel, V message) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(channel).addValue(message);
         return dispatch(PUBLISH, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<String> quit() {
+    public ListenableFuture<String> quit() {
         return dispatch(QUIT, new StatusOutput<K, V>(codec));
     }
 
-    public Promise<V> randomkey() {
+    public ListenableFuture<V> randomkey() {
         return dispatch(RANDOMKEY, new ValueOutput<K, V>(codec));
     }
 
-    public Promise<String> rename(K key, K newKey) {
+    public ListenableFuture<String> rename(K key, K newKey) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).addKey(newKey);
         return dispatch(RENAME, new StatusOutput<K, V>(codec), args);
     }
 
-    public Promise<Boolean> renamenx(K key, K newKey) {
+    public ListenableFuture<Boolean> renamenx(K key, K newKey) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).addKey(newKey);
         return dispatch(RENAMENX, new BooleanOutput<K, V>(codec), args);
     }
 
-    public Promise<String> restore(K key, long ttl, byte[] value) {
+    public ListenableFuture<String> restore(K key, long ttl, byte[] value) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(ttl).add(value);
         return dispatch(RESTORE, new StatusOutput<K, V>(codec), args);
     }
 
-    public Promise<V> rpop(K key) {
+    public ListenableFuture<V> rpop(K key) {
         return dispatch(RPOP, new ValueOutput<K, V>(codec), key);
     }
 
-    public Promise<V> rpoplpush(K source, K destination) {
+    public ListenableFuture<V> rpoplpush(K source, K destination) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(source).addKey(destination);
         return dispatch(RPOPLPUSH, new ValueOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> rpush(K key, V... values) {
+    public ListenableFuture<Long> rpush(K key, V... values) {
         return dispatch(RPUSH, new IntegerOutput<K, V>(codec), key, values);
     }
 
-    public Promise<Long> rpushx(K key, V value) {
+    public ListenableFuture<Long> rpushx(K key, V value) {
         return dispatch(RPUSHX, new IntegerOutput<K, V>(codec), key, value);
     }
 
-    public Promise<Long> sadd(K key, V... members) {
+    public ListenableFuture<Long> sadd(K key, V... members) {
         return dispatch(SADD, new IntegerOutput<K, V>(codec), key, members);
     }
 
-    public Promise<String> save() {
+    public ListenableFuture<String> save() {
         return dispatch(SAVE, new StatusOutput<K, V>(codec));
     }
 
-    public Promise<Long> scard(K key) {
+    public ListenableFuture<Long> scard(K key) {
         return dispatch(SCARD, new IntegerOutput<K, V>(codec), key);
     }
 
-    public Promise<List<Boolean>> scriptExists(String... digests) {
+    public ListenableFuture<List<Boolean>> scriptExists(String... digests) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).add(EXISTS);
         for (String sha : digests) args.add(sha);
         return dispatch(SCRIPT, new BooleanListOutput<K, V>(codec), args);
     }
 
-    public Promise<String> scriptFlush() {
+    public ListenableFuture<String> scriptFlush() {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).add(FLUSH);
         return dispatch(SCRIPT, new StatusOutput<K, V>(codec), args);
     }
 
-    public Promise<String> scriptKill() {
+    public ListenableFuture<String> scriptKill() {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).add(KILL);
         return dispatch(SCRIPT, new StatusOutput<K, V>(codec), args);
     }
 
-    public Promise<String> scriptLoad(V script) {
+    public ListenableFuture<String> scriptLoad(V script) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).add(LOAD).addValue(script);
         return dispatch(SCRIPT, new StatusOutput<K, V>(codec), args);
     }
 
-    public Promise<Set<V>> sdiff(K... keys) {
+    public ListenableFuture<Set<V>> sdiff(K... keys) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKeys(keys);
         return dispatch(SDIFF, new ValueSetOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> sdiffstore(K destination, K... keys) {
+    public ListenableFuture<Long> sdiffstore(K destination, K... keys) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(destination).addKeys(keys);
         return dispatch(SDIFFSTORE, new IntegerOutput<K, V>(codec), args);
     }
@@ -590,25 +591,25 @@ public class RedisAsyncConnection<K, V> extends ChannelInboundHandlerAdapter {
         return status;
     }
 
-    public Promise<String> set(K key, V value) {
+    public ListenableFuture<String> set(K key, V value) {
         return dispatch(SET, new StatusOutput<K, V>(codec), key, value);
     }
 
-    public Promise<Long> setbit(K key, long offset, int value) {
+    public ListenableFuture<Long> setbit(K key, long offset, int value) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(offset).add(value);
         return dispatch(SETBIT, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<String> setex(K key, long seconds, V value) {
+    public ListenableFuture<String> setex(K key, long seconds, V value) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(seconds).addValue(value);
         return dispatch(SETEX, new StatusOutput<K, V>(codec), args);
     }
 
-    public Promise<Boolean> setnx(K key, V value) {
+    public ListenableFuture<Boolean> setnx(K key, V value) {
         return dispatch(SETNX, new BooleanOutput<K, V>(codec), key, value);
     }
 
-    public Promise<Long> setrange(K key, long offset, V value) {
+    public ListenableFuture<Long> setrange(K key, long offset, V value) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(offset).addValue(value);
         return dispatch(SETRANGE, new IntegerOutput<K, V>(codec), args);
     }
@@ -623,134 +624,134 @@ public class RedisAsyncConnection<K, V> extends ChannelInboundHandlerAdapter {
         dispatch(SHUTDOWN, new StatusOutput<K, V>(codec), save ? args.add(SAVE) : args.add(NOSAVE));
     }
 
-    public Promise<Set<V>> sinter(K... keys) {
+    public ListenableFuture<Set<V>> sinter(K... keys) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKeys(keys);
         return dispatch(SINTER, new ValueSetOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> sinterstore(K destination, K... keys) {
+    public ListenableFuture<Long> sinterstore(K destination, K... keys) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(destination).addKeys(keys);
         return dispatch(SINTERSTORE, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<Boolean> sismember(K key, V member) {
+    public ListenableFuture<Boolean> sismember(K key, V member) {
         return dispatch(SISMEMBER, new BooleanOutput<K, V>(codec), key, member);
     }
 
-    public Promise<Boolean> smove(K source, K destination, V member) {
+    public ListenableFuture<Boolean> smove(K source, K destination, V member) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(source).addKey(destination).addValue(member);
         return dispatch(SMOVE, new BooleanOutput<K, V>(codec), args);
     }
 
-    public Promise<String> slaveof(String host, int port) {
+    public ListenableFuture<String> slaveof(String host, int port) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).add(host).add(port);
         return dispatch(SLAVEOF, new StatusOutput<K, V>(codec), args);
     }
 
-    public Promise<String> slaveofNoOne() {
+    public ListenableFuture<String> slaveofNoOne() {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).add(NO).add(ONE);
         return dispatch(SLAVEOF, new StatusOutput<K, V>(codec), args);
     }
 
-    public Promise<List<Object>> slowlogGet() {
+    public ListenableFuture<List<Object>> slowlogGet() {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).add(GET);
         return dispatch(SLOWLOG, new NestedMultiOutput<K, V>(codec), args);
     }
 
-    public Promise<List<Object>> slowlogGet(int count) {
+    public ListenableFuture<List<Object>> slowlogGet(int count) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).add(GET).add(count);
         return dispatch(SLOWLOG, new NestedMultiOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> slowlogLen() {
+    public ListenableFuture<Long> slowlogLen() {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).add(LEN);
         return dispatch(SLOWLOG, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<String> slowlogReset() {
+    public ListenableFuture<String> slowlogReset() {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).add(RESET);
         return dispatch(SLOWLOG, new StatusOutput<K, V>(codec), args);
     }
 
-    public Promise<Set<V>> smembers(K key) {
+    public ListenableFuture<Set<V>> smembers(K key) {
         return dispatch(SMEMBERS, new ValueSetOutput<K, V>(codec), key);
     }
 
-    public Promise<List<V>> sort(K key) {
+    public ListenableFuture<List<V>> sort(K key) {
         return dispatch(SORT, new ValueListOutput<K, V>(codec), key);
     }
 
-    public Promise<List<V>> sort(K key, SortArgs sortArgs) {
+    public ListenableFuture<List<V>> sort(K key, SortArgs sortArgs) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key);
         sortArgs.build(args, null);
         return dispatch(SORT, new ValueListOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> sortStore(K key, SortArgs sortArgs, K destination) {
+    public ListenableFuture<Long> sortStore(K key, SortArgs sortArgs, K destination) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key);
         sortArgs.build(args, destination);
         return dispatch(SORT, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<V> spop(K key) {
+    public ListenableFuture<V> spop(K key) {
         return dispatch(SPOP, new ValueOutput<K, V>(codec), key);
     }
 
-    public Promise<V> srandmember(K key) {
+    public ListenableFuture<V> srandmember(K key) {
         return dispatch(SRANDMEMBER, new ValueOutput<K, V>(codec), key);
     }
 
-    public Promise<Set<V>> srandmember(K key, long count) {
+    public ListenableFuture<Set<V>> srandmember(K key, long count) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(count);
         return dispatch(SRANDMEMBER, new ValueSetOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> srem(K key, V... members) {
+    public ListenableFuture<Long> srem(K key, V... members) {
         return dispatch(SREM, new IntegerOutput<K, V>(codec), key, members);
     }
 
-    public Promise<Set<V>> sunion(K... keys) {
+    public ListenableFuture<Set<V>> sunion(K... keys) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKeys(keys);
         return dispatch(SUNION, new ValueSetOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> sunionstore(K destination, K... keys) {
+    public ListenableFuture<Long> sunionstore(K destination, K... keys) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(destination).addKeys(keys);
         return dispatch(SUNIONSTORE, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<String> sync() {
+    public ListenableFuture<String> sync() {
         return dispatch(SYNC, new StatusOutput<K, V>(codec));
     }
 
-    public Promise<Long> strlen(K key) {
+    public ListenableFuture<Long> strlen(K key) {
         return dispatch(STRLEN, new IntegerOutput<K, V>(codec), key);
     }
 
-    public Promise<Long> ttl(K key) {
+    public ListenableFuture<Long> ttl(K key) {
         return dispatch(TTL, new IntegerOutput<K, V>(codec), key);
     }
 
-    public Promise<String> type(K key) {
+    public ListenableFuture<String> type(K key) {
         return dispatch(TYPE, new StatusOutput<K, V>(codec), key);
     }
 
-    public Promise<String> watch(K... keys) {
+    public ListenableFuture<String> watch(K... keys) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKeys(keys);
         return dispatch(WATCH, new StatusOutput<K, V>(codec), args);
     }
 
-    public Promise<String> unwatch() {
+    public ListenableFuture<String> unwatch() {
         return dispatch(UNWATCH, new StatusOutput<K, V>(codec));
     }
 
-    public Promise<Long> zadd(K key, double score, V member) {
+    public ListenableFuture<Long> zadd(K key, double score, V member) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(score).addValue(member);
         return dispatch(ZADD, new IntegerOutput<K, V>(codec), args);
     }
 
     @SuppressWarnings("unchecked")
-    public Promise<Long> zadd(K key, Object... scoresAndValues) {
+    public ListenableFuture<Long> zadd(K key, Object... scoresAndValues) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key);
         for (int i = 0; i < scoresAndValues.length; i += 2) {
             args.add((Double) scoresAndValues[i]);
@@ -759,169 +760,169 @@ public class RedisAsyncConnection<K, V> extends ChannelInboundHandlerAdapter {
         return dispatch(ZADD, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> zcard(K key) {
+    public ListenableFuture<Long> zcard(K key) {
         return dispatch(ZCARD, new IntegerOutput<K, V>(codec), key);
     }
 
-    public Promise<Long> zcount(K key, double min, double max) {
+    public ListenableFuture<Long> zcount(K key, double min, double max) {
         return zcount(key, string(min), string(max));
     }
 
-    public Promise<Long> zcount(K key, String min, String max) {
+    public ListenableFuture<Long> zcount(K key, String min, String max) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(min).add(max);
         return dispatch(ZCOUNT, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<Double> zincrby(K key, double amount, K member) {
+    public ListenableFuture<Double> zincrby(K key, double amount, K member) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(amount).addKey(member);
         return dispatch(ZINCRBY, new DoubleOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> zinterstore(K destination, K... keys) {
+    public ListenableFuture<Long> zinterstore(K destination, K... keys) {
         return zinterstore(destination, new ZStoreArgs(), keys);
     }
 
-    public Promise<Long> zinterstore(K destination, ZStoreArgs storeArgs, K... keys) {
+    public ListenableFuture<Long> zinterstore(K destination, ZStoreArgs storeArgs, K... keys) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(destination).add(keys.length).addKeys(keys);
         storeArgs.build(args);
         return dispatch(ZINTERSTORE, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<List<V>> zrange(K key, long start, long stop) {
+    public ListenableFuture<List<V>> zrange(K key, long start, long stop) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(start).add(stop);
         return dispatch(ZRANGE, new ValueListOutput<K, V>(codec), args);
     }
 
-    public Promise<List<ScoredValue<V>>> zrangeWithScores(K key, long start, long stop) {
+    public ListenableFuture<List<ScoredValue<V>>> zrangeWithScores(K key, long start, long stop) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec);
         args.addKey(key).add(start).add(stop).add(WITHSCORES);
         return dispatch(ZRANGE, new ScoredValueListOutput<K, V>(codec), args);
     }
 
-    public Promise<List<V>> zrangebyscore(K key, double min, double max) {
+    public ListenableFuture<List<V>> zrangebyscore(K key, double min, double max) {
         return zrangebyscore(key, string(min), string(max));
     }
 
-    public Promise<List<V>> zrangebyscore(K key, String min, String max) {
+    public ListenableFuture<List<V>> zrangebyscore(K key, String min, String max) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(min).add(max);
         return dispatch(ZRANGEBYSCORE, new ValueListOutput<K, V>(codec), args);
     }
 
-    public Promise<List<V>> zrangebyscore(K key, double min, double max, long offset, long count) {
+    public ListenableFuture<List<V>> zrangebyscore(K key, double min, double max, long offset, long count) {
         return zrangebyscore(key, string(min), string(max), offset, count);
     }
 
-    public Promise<List<V>> zrangebyscore(K key, String min, String max, long offset, long count) {
+    public ListenableFuture<List<V>> zrangebyscore(K key, String min, String max, long offset, long count) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec);
         args.addKey(key).add(min).add(max).add(LIMIT).add(offset).add(count);
         return dispatch(ZRANGEBYSCORE, new ValueListOutput<K, V>(codec), args);
     }
 
-    public Promise<List<ScoredValue<V>>> zrangebyscoreWithScores(K key, double min, double max) {
+    public ListenableFuture<List<ScoredValue<V>>> zrangebyscoreWithScores(K key, double min, double max) {
         return zrangebyscoreWithScores(key, string(min), string(max));
     }
 
-    public Promise<List<ScoredValue<V>>> zrangebyscoreWithScores(K key, String min, String max) {
+    public ListenableFuture<List<ScoredValue<V>>> zrangebyscoreWithScores(K key, String min, String max) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec);
         args.addKey(key).add(min).add(max).add(WITHSCORES);
         return dispatch(ZRANGEBYSCORE, new ScoredValueListOutput<K, V>(codec), args);
     }
 
-    public Promise<List<ScoredValue<V>>> zrangebyscoreWithScores(K key, double min, double max, long offset, long count) {
+    public ListenableFuture<List<ScoredValue<V>>> zrangebyscoreWithScores(K key, double min, double max, long offset, long count) {
         return zrangebyscoreWithScores(key, string(min), string(max), offset, count);
     }
 
-    public Promise<List<ScoredValue<V>>> zrangebyscoreWithScores(K key, String min, String max, long offset, long count) {
+    public ListenableFuture<List<ScoredValue<V>>> zrangebyscoreWithScores(K key, String min, String max, long offset, long count) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec);
         args.addKey(key).add(min).add(max).add(WITHSCORES).add(LIMIT).add(offset).add(count);
         return dispatch(ZRANGEBYSCORE, new ScoredValueListOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> zrank(K key, V member) {
+    public ListenableFuture<Long> zrank(K key, V member) {
         return dispatch(ZRANK, new IntegerOutput<K, V>(codec), key, member);
     }
 
-    public Promise<Long> zrem(K key, V... members) {
+    public ListenableFuture<Long> zrem(K key, V... members) {
         return dispatch(ZREM, new IntegerOutput<K, V>(codec), key, members);
     }
 
-    public Promise<Long> zremrangebyrank(K key, long start, long stop) {
+    public ListenableFuture<Long> zremrangebyrank(K key, long start, long stop) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(start).add(stop);
         return dispatch(ZREMRANGEBYRANK, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> zremrangebyscore(K key, double min, double max) {
+    public ListenableFuture<Long> zremrangebyscore(K key, double min, double max) {
         return zremrangebyscore(key, string(min), string(max));
     }
 
-    public Promise<Long> zremrangebyscore(K key, String min, String max) {
+    public ListenableFuture<Long> zremrangebyscore(K key, String min, String max) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(min).add(max);
         return dispatch(ZREMRANGEBYSCORE, new IntegerOutput<K, V>(codec), args);
     }
 
-    public Promise<List<V>> zrevrange(K key, long start, long stop) {
+    public ListenableFuture<List<V>> zrevrange(K key, long start, long stop) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(start).add(stop);
         return dispatch(ZREVRANGE, new ValueListOutput<K, V>(codec), args);
     }
 
-    public Promise<List<ScoredValue<V>>> zrevrangeWithScores(K key, long start, long stop) {
+    public ListenableFuture<List<ScoredValue<V>>> zrevrangeWithScores(K key, long start, long stop) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec);
         args.addKey(key).add(start).add(stop).add(WITHSCORES);
         return dispatch(ZREVRANGE, new ScoredValueListOutput<K, V>(codec), args);
     }
 
-    public Promise<List<V>> zrevrangebyscore(K key, double max, double min) {
+    public ListenableFuture<List<V>> zrevrangebyscore(K key, double max, double min) {
         return zrevrangebyscore(key, string(max), string(min));
     }
 
-    public Promise<List<V>> zrevrangebyscore(K key, String max, String min) {
+    public ListenableFuture<List<V>> zrevrangebyscore(K key, String max, String min) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec).addKey(key).add(max).add(min);
         return dispatch(ZREVRANGEBYSCORE, new ValueListOutput<K, V>(codec), args);
     }
 
-    public Promise<List<V>> zrevrangebyscore(K key, double max, double min, long offset, long count) {
+    public ListenableFuture<List<V>> zrevrangebyscore(K key, double max, double min, long offset, long count) {
         return zrevrangebyscore(key, string(max), string(min), offset, count);
     }
 
-    public Promise<List<V>> zrevrangebyscore(K key, String max, String min, long offset, long count) {
+    public ListenableFuture<List<V>> zrevrangebyscore(K key, String max, String min, long offset, long count) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec);
         args.addKey(key).add(max).add(min).add(LIMIT).add(offset).add(count);
         return dispatch(ZREVRANGEBYSCORE, new ValueListOutput<K, V>(codec), args);
     }
 
-    public Promise<List<ScoredValue<V>>> zrevrangebyscoreWithScores(K key, double max, double min) {
+    public ListenableFuture<List<ScoredValue<V>>> zrevrangebyscoreWithScores(K key, double max, double min) {
         return zrevrangebyscoreWithScores(key, string(max), string(min));
     }
 
-    public Promise<List<ScoredValue<V>>> zrevrangebyscoreWithScores(K key, String max, String min) {
+    public ListenableFuture<List<ScoredValue<V>>> zrevrangebyscoreWithScores(K key, String max, String min) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec);
         args.addKey(key).add(max).add(min).add(WITHSCORES);
         return dispatch(ZREVRANGEBYSCORE, new ScoredValueListOutput<K, V>(codec), args);
     }
 
-    public Promise<List<ScoredValue<V>>> zrevrangebyscoreWithScores(K key, double max, double min, long offset, long count) {
+    public ListenableFuture<List<ScoredValue<V>>> zrevrangebyscoreWithScores(K key, double max, double min, long offset, long count) {
         return zrevrangebyscoreWithScores(key, string(max), string(min), offset, count);
     }
 
-    public Promise<List<ScoredValue<V>>> zrevrangebyscoreWithScores(K key, String max, String min, long offset, long count) {
+    public ListenableFuture<List<ScoredValue<V>>> zrevrangebyscoreWithScores(K key, String max, String min, long offset, long count) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec);
         args.addKey(key).add(max).add(min).add(WITHSCORES).add(LIMIT).add(offset).add(count);
         return dispatch(ZREVRANGEBYSCORE, new ScoredValueListOutput<K, V>(codec), args);
     }
 
-    public Promise<Long> zrevrank(K key, V member) {
+    public ListenableFuture<Long> zrevrank(K key, V member) {
         return dispatch(ZREVRANK, new IntegerOutput<K, V>(codec), key, member);
     }
 
-    public Promise<Double> zscore(K key, V member) {
+    public ListenableFuture<Double> zscore(K key, V member) {
         return dispatch(ZSCORE, new DoubleOutput<K, V>(codec), key, member);
     }
 
-    public Promise<Long> zunionstore(K destination, K... keys) {
+    public ListenableFuture<Long> zunionstore(K destination, K... keys) {
         return zunionstore(destination, new ZStoreArgs(), keys);
     }
 
-    public Promise<Long> zunionstore(K destination, ZStoreArgs storeArgs, K... keys) {
+    public ListenableFuture<Long> zunionstore(K destination, ZStoreArgs storeArgs, K... keys) {
         CommandArgs<K, V> args = new CommandArgs<K, V>(codec);
         args.addKey(destination).add(keys.length).addKeys(keys);
         storeArgs.build(args);
@@ -933,20 +934,20 @@ public class RedisAsyncConnection<K, V> extends ChannelInboundHandlerAdapter {
      *
      * @param futures   futures to wait for.
      *
-     * @return True if all Promises complete in time.
+     * @return True if all ListenableFutures complete in time.
      */
     public boolean awaitAll(Future<?>... futures) {
         return awaitAll(timeout, unit, futures);
     }
 
     /**
-     * Wait until Promises are complete or the supplied timeout is reached.
+     * Wait until ListenableFutures are complete or the supplied timeout is reached.
      *
-     * @param timeout   Maximum time to wait for Promises to complete.
+     * @param timeout   Maximum time to wait for ListenableFutures to complete.
      * @param unit      Unit of time for the timeout.
      * @param futures   futures to wait for.
      *
-     * @return True if all Promises complete in time.
+     * @return True if all ListenableFutures complete in time.
      */
     public boolean awaitAll(long timeout, TimeUnit unit, Future<?>... futures) {
         boolean complete;

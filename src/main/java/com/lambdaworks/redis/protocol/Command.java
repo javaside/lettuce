@@ -3,9 +3,7 @@
 package com.lambdaworks.redis.protocol;
 
 import com.lambdaworks.redis.RedisCommandInterruptedException;
-import com.lambdaworks.redis.concurrent.Callback;
-import com.lambdaworks.redis.concurrent.FailCallback;
-import com.lambdaworks.redis.concurrent.Promise;
+import com.lambdaworks.redis.concurrent.*;
 import io.netty.buffer.ByteBuf;
 
 import java.util.List;
@@ -19,15 +17,14 @@ import java.util.concurrent.*;
  *
  * @author Will Glozer
  */
-public class Command<K, V, T> implements Promise<T> {
+public class Command<K, V, T> extends DeferredObject<T> implements ListenableFuture<T> {
     private static final byte[] CRLF = "\r\n".getBytes(Charsets.ASCII);
 
     public final CommandType type;
     protected CommandArgs<K, V> args;
     protected CommandOutput<K, V, T> output;
     protected CountDownLatch latch;
-    protected final List<Callback<T>> doneCallbacks = new CopyOnWriteArrayList<Callback<T>>();
-    protected final List<FailCallback> failCallbacks = new CopyOnWriteArrayList<FailCallback>();
+
     /**
      * Create a new command with the supplied type and args.
      *
@@ -154,10 +151,12 @@ public class Command<K, V, T> implements Promise<T> {
         latch.countDown();
         if(output != null) {
             if(output.hasError()) {
-                triggerError(output.getError());
+                failure(error);
             } else {
-                triggerDone(output.get());
+                resolve(output.get());
             }
+        } else {
+            failure("no result return");
         }
 
 
@@ -207,45 +206,5 @@ public class Command<K, V, T> implements Promise<T> {
         }
     }
 
-    @Override
-    public Promise<T> then(Callback<T> callback) {
-        doneCallbacks.add(callback);
-        if(isDone()) {
-            triggerDone(output.get());
-        }
-        return this;  //To change body of implemented methods use File | Settings | File Templates.
-    }
 
-    @Override
-    public Promise<T> fail(FailCallback failCallback) {
-        failCallbacks.add(failCallback);
-        if(isDone() && output.hasError()) {
-            triggerError(output.getError());
-        }
-
-        return this;
-    }
-
-    @Override
-    public Promise<T> then(Callback<T> callback, FailCallback failCallback) {
-        then(callback);
-        fail(failCallback);
-        return this;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-   protected void triggerDone(T resolved) {
-        for (Callback<T> callback : doneCallbacks) {
-            try {
-                callback.call(resolved);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-
-    protected void triggerError(String error) {
-        for(FailCallback failCallback : failCallbacks) {
-            failCallback.fail(error);
-        }
-    }
 }
